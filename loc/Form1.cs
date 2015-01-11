@@ -32,7 +32,8 @@ namespace loc
             ".png", ".jpg", ".gif", "svg", ".psd", 
             ".min.js", ".map",
             ".eot", ".otf", ".ttf", ".woff", ".tt",
-            ".cache", ".resx", ".sln", ".suo", ".csproj", ".diagram", ".user", ".edmx", ".targets", ".pubxml"
+            ".cache", ".resx", ".sln", ".suo", ".csproj", ".diagram", 
+            ".user", ".edmx", ".targets", ".pubxml", ".designer.cs", ".d.ts"
         };
         private int totalLines = 0;
         private Dictionary<string, int> files = new Dictionary<string, int>();
