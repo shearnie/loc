@@ -64,6 +64,7 @@ namespace loc
             // total
             this.txtOut.AppendText("\r\n");
             this.txtOut.AppendText("TOTAL".PadRight(PAD) + "LINE COUNT   \r\n");
+            this.txtOut.AppendText("=".PadRight(PAD, Convert.ToChar("=")) + "=============\r\n");
             this.txtOut.AppendText(" ".PadRight(PAD) + this.totalLines.ToString("###,###,###,###") + "\r\n");
         }
 
