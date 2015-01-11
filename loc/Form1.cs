@@ -13,7 +13,7 @@ namespace loc
 {
     public partial class Form1 : Form
     {
-        private const string PATH = "C:\\Dev";
+        private const string PATH = " your source path here ";
         private static readonly List<string> DirIgnores = new List<string>()
         {
             "bin",
@@ -28,9 +28,11 @@ namespace loc
         private const int PAD = 200;
         private static readonly List<string> Ignores = new List<string>()
         {
-            ".dll", ".exe", ".obj", ".pdb", ".png", ".jpg", ".gif", "svg", ".min.js", ".js.map",
-            ".eot", ".otf", ".ttf", ".woff",
-            ".cache",
+            ".dll", ".exe", ".obj", ".pdb", 
+            ".png", ".jpg", ".gif", "svg", ".psd", 
+            ".min.js", ".map",
+            ".eot", ".otf", ".ttf", ".woff", ".tt",
+            ".cache", ".resx", ".sln", ".suo", ".csproj", ".diagram", ".user", ".edmx", ".targets", ".pubxml"
         };
         private int totalLines = 0;
         private Dictionary<string, int> files = new Dictionary<string, int>();
@@ -42,13 +44,14 @@ namespace loc
 
         private void Form1_Shown(object sender, EventArgs e)
         {
+            // intro
             this.txtOut.AppendText("FILENAME".PadRight(PAD) + "LINE COUNT   \r\n");
             this.txtOut.AppendText("-".PadRight(PAD, Convert.ToChar("-")) + "-------------\r\n");
 
+            // files
             this.Calc(PATH);
 
-            this.txtOut.AppendText(" ".PadRight(PAD) + this.totalLines.ToString("###,###,###,###") + "\r\n");
-
+            // summary
             this.txtOut.AppendText("\r\n");
             this.txtOut.AppendText("EXTENSION SUMMARY".PadRight(PAD) + "LINE COUNT   \r\n");
             this.txtOut.AppendText("-".PadRight(PAD, Convert.ToChar("-")) + "-------------\r\n");
@@ -56,6 +59,10 @@ namespace loc
             {
                 this.txtOut.AppendText(ext.Key.PadRight(PAD) + ext.Value.ToString("###,###,###,###") + "\r\n");
             }
+
+            // total
+            this.txtOut.AppendText("TOTAL".PadRight(PAD) + "LINE COUNT   \r\n");
+            this.txtOut.AppendText(" ".PadRight(PAD) + this.totalLines.ToString("###,###,###,###") + "\r\n");
         }
 
         private void Calc(string path)
