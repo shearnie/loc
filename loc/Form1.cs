@@ -35,8 +35,12 @@ namespace loc
             ".cache", ".resx", ".sln", ".suo", ".csproj", ".diagram", 
             ".user", ".edmx", ".targets", ".pubxml", ".designer.cs", ".d.ts"
         };
-        private int totalLines = 0;
-        private Dictionary<string, int> files = new Dictionary<string, int>();
+        private class FileInfo
+        {
+            public int lines { get; set; }
+            public long length { get; set; }
+        }
+        private Dictionary<string, FileInfo> files = new Dictionary<string, FileInfo>();
 
         public Form1()
         {
@@ -46,26 +50,30 @@ namespace loc
         private void Form1_Shown(object sender, EventArgs e)
         {
             // intro
-            this.txtOut.AppendText("FILENAME".PadRight(PAD) + "LINE COUNT   \r\n");
-            this.txtOut.AppendText("-".PadRight(PAD, Convert.ToChar("-")) + "-------------\r\n");
+            this.txtOut.AppendText("FILENAME".PadRight(PAD) + "LINE COUNT   SIZE BYTES\r\n");
+            this.txtOut.AppendText("-".PadRight(PAD, Convert.ToChar("-")) + "-----------------------\r\n");
 
             // files
             this.Calc(PATH);
 
             // summary
             this.txtOut.AppendText("\r\n");
-            this.txtOut.AppendText("EXTENSION SUMMARY".PadRight(PAD) + "LINE COUNT   \r\n");
-            this.txtOut.AppendText("-".PadRight(PAD, Convert.ToChar("-")) + "-------------\r\n");
-            foreach (var ext in this.files.OrderByDescending(f => f.Value))
+            this.txtOut.AppendText("EXTENSION SUMMARY".PadRight(PAD) + "LINE COUNT   SIZE BYTES\r\n");
+            this.txtOut.AppendText("-".PadRight(PAD, Convert.ToChar("-")) + "-----------------------\r\n");
+            foreach (var ext in this.files.OrderByDescending(f => f.Value.length))
             {
-                this.txtOut.AppendText(ext.Key.PadRight(PAD) + ext.Value.ToString("###,###,###,###") + "\r\n");
+                this.txtOut.AppendText(ext.Key.PadRight(PAD) +
+                    ext.Value.lines.ToString("###,###,###,###").PadRight(13) +
+                    ext.Value.length.ToString("###,###,###,###").PadRight(13) + "\r\n");
             }
 
             // total
             this.txtOut.AppendText("\r\n");
-            this.txtOut.AppendText("TOTAL".PadRight(PAD) + "LINE COUNT   \r\n");
-            this.txtOut.AppendText("=".PadRight(PAD, Convert.ToChar("=")) + "=============\r\n");
-            this.txtOut.AppendText(" ".PadRight(PAD) + this.totalLines.ToString("###,###,###,###") + "\r\n");
+            this.txtOut.AppendText("TOTAL".PadRight(PAD) + "LINE COUNT   SIZE BYTES\r\n");
+            this.txtOut.AppendText("=".PadRight(PAD, Convert.ToChar("=")) + "=======================\r\n");
+            this.txtOut.AppendText(" ".PadRight(PAD) +
+                this.files.Sum(f => f.Value.lines).ToString("###,###,###,###").PadRight(13) +
+                this.files.Sum(f => f.Value.length).ToString("###,###,###,###") + "\r\n");
         }
 
         private void Calc(string path)
@@ -73,7 +81,7 @@ namespace loc
             var d = new DirectoryInfo(path);
             foreach (var file in d.GetDirectories())
             {
-                if (!PathIgnores.Any(ignore => ignore.ToLower().Contains(file.FullName.ToLower())) && 
+                if (!PathIgnores.Any(ignore => ignore.ToLower().Contains(file.FullName.ToLower())) &&
                     !DirIgnores.Contains(file.Name.ToLower()))
                     this.Calc(file.FullName);
             }
@@ -82,14 +90,17 @@ namespace loc
                 if (Ignores.Any(ignore => file.Name.ToLower().EndsWith(ignore))) continue;
 
                 var lines = File.ReadLines(file.FullName).Count();
-                this.totalLines += lines;
-                
+                var length = file.Length;
+
                 if (this.files.ContainsKey(file.Extension.ToLower()))
-                    this.files[file.Extension.ToLower()] += lines;
+                {
+                    this.files[file.Extension.ToLower()].lines += lines;
+                    this.files[file.Extension.ToLower()].length += length;
+                }
                 else
-                    this.files.Add(file.Extension.ToLower(), lines);
-                    
-                this.txtOut.AppendText(file.FullName.PadRight(PAD) + lines.ToString("###,###,###,###") + "\r\n");
+                    this.files.Add(file.Extension.ToLower(), new FileInfo() { lines = lines, length = length });
+
+                this.txtOut.AppendText(file.FullName.PadRight(PAD) + lines.ToString("###,###,###,###").PadRight(13) + length.ToString("###,###,###,###") + "\r\n");
                 Application.DoEvents();
             }
         }
